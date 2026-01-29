@@ -46,6 +46,12 @@ jobs:
           else
             echo "No build script. Skipping."
           fi
+        
+      - name: Check environment variables
+        run: |
+          echo "AZURE_COSMOS_MONGO_URI=${{ env.AZURE_COSMOS_MONGO_URI }}"
+          echo "MONGO_DB_NAME=${{ env.MONGO_DB_NAME }}"
+          echo "JWT_SECRET=${{ env.JWT_SECRET }}"
 
       - name: Archive app for deployment
         run: |
