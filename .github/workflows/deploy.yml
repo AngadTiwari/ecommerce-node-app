@@ -44,6 +44,15 @@ jobs:
           else
             echo "No build script. Skipping."
           fi
+        
+      - name: Check environment variables
+        run: |
+          echo "AZURE_COSMOS_MONGO_URI=${{ env.AZURE_COSMOS_MONGO_URI }}" >> $GITHUB_ENV
+          echo "MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}" >> $GITHUB_ENV
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+          echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
+          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> $GITHUB_ENV
+          echo "PUBLISH PROFILE=${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" >> $GITHUB_ENV
 
       - name: Sanity check secrets presence
         shell: bash
@@ -57,15 +66,6 @@ jobs:
             fi
           done
           exit ${MISSING:-0}
-        
-      - name: Check environment variables
-        run: |
-          echo "AZURE_COSMOS_MONGO_URI=${{ env.AZURE_COSMOS_MONGO_URI }}" >> $GITHUB_ENV
-          echo "MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}" >> $GITHUB_ENV
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
-          echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
-          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> $GITHUB_ENV
-          echo "PUBLISH PROFILE=${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" >> $GITHUB_ENV
 
       - name: Archive app for deployment
         run: |
