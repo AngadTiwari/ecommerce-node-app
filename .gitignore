@@ -1,0 +1,54 @@
+# --- Node.js dependencies ---
+# node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+bun.lockb
+
+# --- Environment variables ---
+.env
+.env*.local
+
+# --- Build output ---
+dist/
+build/
+.out/
+.next/
+.vercel/
+server/
+tmp/
+temp/
+
+# --- Caches ---
+.cache/
+.npm/
+.yarn/
+.pnpm-store/
+.eslintcache
+.stylelintcache
+
+# --- Logs ---
+logs/
+*.log
+*.log.*
+
+# --- Testing ---
+coverage/
+.nyc_output/
+
+# --- TypeScript ---
+*.tsbuildinfo
+
+# --- Editor directories & system files ---
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Optional: lockfiles (uncomment if using a single package manager) ---
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
