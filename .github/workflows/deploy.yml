@@ -60,7 +60,7 @@ jobs:
         
       - name: Check environment variables
         run: |
-          echo "AZURE_COSMOS_MONGO_URI=${{ secrets.AZURE_COSMOS_MONGO_URI }}" >> $GITHUB_ENV
+          echo "AZURE_COSMOS_MONGO_URI=${{ env.AZURE_COSMOS_MONGO_URI }}" >> $GITHUB_ENV
           echo "MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}" >> $GITHUB_ENV
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
           echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
