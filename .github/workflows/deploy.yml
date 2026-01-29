@@ -9,18 +9,18 @@ env:
   NODE_VERSION: '24.x'              # Use Node 24 LTS
   AZURE_WEBAPP_NAME: 'appsrv-app-dev'   # <-- change this
   PACKAGE_DIR: '.'                  # Change if your app is in a subfolder (e.g. apps/web)
-  AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-  MONGO_DB_NAME_DEV: ${{vars.dev.MONGO_DB_NAME}}
-  AZURE_COSMOS_MONGO_URI: ${{ secrets.AZURE_COSMOS_MONGO_URI }}
-  MONGO_DB_NAME: ${{ vars.MONGO_DB_NAME }}
-  JWT_SECRET: ${{ vars.JWT_SECRET }}
-  PORT: ${{ vars.PORT }}
-  VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
-
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment: dev            # <-- CRUCIAL: binds the job to environment 'dev'
+    env: 
+      AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+      AZURE_COSMOS_MONGO_URI: ${{ secrets.AZURE_COSMOS_MONGO_URI }}
+      MONGO_DB_NAME: ${{ vars.MONGO_DB_NAME }}
+      JWT_SECRET: ${{ vars.JWT_SECRET }}
+      PORT: ${{ vars.PORT }}
+      VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
 
     steps:
       - name: Checkout
@@ -48,27 +48,13 @@ jobs:
         
       - name: Check environment variables
         run: |
-          echo "AZURE_COSMOS_MONGO_URI=${{ secrets.AZURE_COSMOS_MONGO_URI }}" >> $GITHUB_ENV
-          echo "MONGO_DB_NAME=${{ vars.MONGO_DB_NAME }}" >> $GITHUB_ENV
-          echo "MONGO_DB_NAME_DEV=${{ env.MONGO_DB_NAME_DEV }}" >> $GITHUB_ENV
-          echo "MONGO_DB_NAME_DEV=${{ vars.MONGO_DB_NAME }}" >> $GITHUB_ENV
-          echo "JWT_SECRET=${{ vars.JWT_SECRET }}" >> $GITHUB_ENV
-          echo "PORT=${{ vars.PORT }}" >> $GITHUB_ENV
-          echo "VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}" >> $GITHUB_ENV
-          echo "AZURE_WEBAPP_PUBLISH_PROFILE=${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" >> $GITHUB_ENV
-
-      - name: Sanity check secrets presence
-        shell: bash
-        run: |
-          for name in AZURE_COSMOS_MONGO_URI MONGO_DB_NAME JWT_SECRET PORT VITE_API_BASE_URL AZURE_WEBAPP_PUBLISH_PROFILE; do
-            if [ -z "${!name}" ]; then
-              echo "::error title=Secret missing::Environment variable $name is empty"
-              MISSING=1
-            else
-              echo "$name is set"
-            fi
-          done
-          exit ${MISSING:-0}
+          echo "AZURE_COSMOS_MONGO_URI=${AZURE_COSMOS_MONGO_URI}" >> $GITHUB_ENV
+          echo "MONGO_DB_NAME=${MONGO_DB_NAME}" >> $GITHUB_ENV
+          echo "MONGO_DB_NAME_DEV=${MONGO_DB_NAME}" >> $GITHUB_ENV
+          echo "JWT_SECRET=${JWT_SECRET}" >> $GITHUB_ENV
+          echo "PORT=${PORT}" >> $GITHUB_ENV
+          echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}" >> $GITHUB_ENV
+          echo "AZURE_WEBAPP_PUBLISH_PROFILE=${AZURE_WEBAPP_PUBLISH_PROFILE}" >> $GITHUB_ENV
 
       - name: Archive app for deployment
         run: |
@@ -79,6 +65,6 @@ jobs:
       - name: Deploy to Azure Web App (via publish profile)
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          app-name: ${AZURE_WEBAPP_NAME}
+          publish-profile: ${AZURE_WEBAPP_PUBLISH_PROFILE}
           package: packaged/app.zip
