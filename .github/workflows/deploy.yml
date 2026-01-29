@@ -51,7 +51,6 @@ jobs:
         run: |
           # Vars (non-sensitive) - okay to echo
           echo "MONGO_DB_NAME=${MONGO_DB_NAME}"
-          echo "AZURE_COSMOS_MONGO_URI=${AZURE_COSMOS_MONGO_URI}"
           echo "JWT_SECRET=${JWT_SECRET}"
           echo "PORT=${PORT}"
           echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}"
