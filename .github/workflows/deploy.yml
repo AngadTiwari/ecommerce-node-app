@@ -1,0 +1,61 @@
+name: Deploy Node 24 LTS to Azure App Service
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '24.x'              # Use Node 24 LTS
+  AZURE_WEBAPP_NAME: 'appsrv-app-dev'   # <-- change this
+  PACKAGE_DIR: '.'                  # Change if your app is in a subfolder (e.g. apps/web)
+  AZURE_COSMOS_MONGO_URI: ${{ secrets.AZURE_COSMOS_MONGO_URI }}
+  MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  PORT: ${{ secrets.PORT }}
+  VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.PACKAGE_DIR }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ env.PACKAGE_DIR }}
+        run: npm ci
+
+      - name: Build
+        working-directory: ${{ env.PACKAGE_DIR }}
+        run: |
+          if jq -er '.scripts.build' package.json > /dev/null 2>&1; then
+            npm run build
+          else
+            echo "No build script. Skipping."
+          fi
+
+      - name: Archive app for deployment
+        run: |
+          mkdir -p packaged
+          # Exclude common dev/test artifacts if needed
+          zip -r packaged/app.zip ${{ env.PACKAGE_DIR }} -x "*/node_modules/*" "*/.git/*" "*/.github/*" "*/tests/*"
+
+      - name: Deploy to Azure Web App (via publish profile)
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: packaged/app.zip
