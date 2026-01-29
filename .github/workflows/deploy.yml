@@ -60,6 +60,21 @@ jobs:
             [ -n "${!name}" ] && echo "$name is set" || (echo "::error::$name is empty" && exit 1)
           done
 
+      # Install front-end deps and build (assumes Vite config outputs to ../dist)
+      - name: Install eCommerce React frontend app deps
+        shell: bash
+        working-directory: app
+        run: npm ci
+
+      - name: Build Vite (React Frontend) app
+        working-directory: app
+        env:
+          # Set your build-time env if needed
+          # VITE_API_BASE: ${{ env.VITE_API_BASE_URL }}
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: |
+          npm run build
+
       - name: Archive app for deployment
         run: |
           mkdir -p packaged
