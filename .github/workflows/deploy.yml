@@ -50,7 +50,8 @@ jobs:
         run: |
           echo "AZURE_COSMOS_MONGO_URI=${{ secrets.AZURE_COSMOS_MONGO_URI }}" >> $GITHUB_ENV
           echo "MONGO_DB_NAME=${{ vars.MONGO_DB_NAME }}" >> $GITHUB_ENV
-          echo "MONGO_DB_NAME_DEV=${{ vars.MONGO_DB_NAME_DEV }}" >> $GITHUB_ENV
+          echo "MONGO_DB_NAME_DEV=${{ env.MONGO_DB_NAME_DEV }}" >> $GITHUB_ENV
+          echo "MONGO_DB_NAME_DEV=${{ vars.MONGO_DB_NAME }}" >> $GITHUB_ENV
           echo "JWT_SECRET=${{ vars.JWT_SECRET }}" >> $GITHUB_ENV
           echo "PORT=${{ vars.PORT }}" >> $GITHUB_ENV
           echo "VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}" >> $GITHUB_ENV
