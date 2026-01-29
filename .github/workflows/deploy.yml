@@ -9,12 +9,13 @@ env:
   NODE_VERSION: '24.x'              # Use Node 24 LTS
   AZURE_WEBAPP_NAME: 'appsrv-app-dev'   # <-- change this
   PACKAGE_DIR: '.'                  # Change if your app is in a subfolder (e.g. apps/web)
+  AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+  MONGO_DB_NAME_DEV: ${{vars.dev.MONGO_DB_NAME}}
   AZURE_COSMOS_MONGO_URI: ${{ secrets.AZURE_COSMOS_MONGO_URI }}
-  MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
-  JWT_SECRET: ${{ secrets.JWT_SECRET }}
-  PORT: ${{ secrets.PORT }}
-  VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
-  PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+  MONGO_DB_NAME: ${{ vars.MONGO_DB_NAME }}
+  JWT_SECRET: ${{ vars.JWT_SECRET }}
+  PORT: ${{ vars.PORT }}
+  VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
 
 
 jobs:
@@ -47,17 +48,18 @@ jobs:
         
       - name: Check environment variables
         run: |
-          echo "AZURE_COSMOS_MONGO_URI=${{ env.AZURE_COSMOS_MONGO_URI }}" >> $GITHUB_ENV
-          echo "MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}" >> $GITHUB_ENV
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
-          echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
-          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> $GITHUB_ENV
-          echo "PUBLISH PROFILE=${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" >> $GITHUB_ENV
+          echo "AZURE_COSMOS_MONGO_URI=${{ secrets.AZURE_COSMOS_MONGO_URI }}" >> $GITHUB_ENV
+          echo "MONGO_DB_NAME=${{ vars.MONGO_DB_NAME }}" >> $GITHUB_ENV
+          echo "MONGO_DB_NAME_DEV=${{ vars.MONGO_DB_NAME_DEV }}" >> $GITHUB_ENV
+          echo "JWT_SECRET=${{ vars.JWT_SECRET }}" >> $GITHUB_ENV
+          echo "PORT=${{ vars.PORT }}" >> $GITHUB_ENV
+          echo "VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}" >> $GITHUB_ENV
+          echo "AZURE_WEBAPP_PUBLISH_PROFILE=${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" >> $GITHUB_ENV
 
       - name: Sanity check secrets presence
         shell: bash
         run: |
-          for name in AZURE_COSMOS_MONGO_URI MONGO_DB_NAME JWT_SECRET PORT VITE_API_BASE_URL PUBLISH_PROFILE; do
+          for name in AZURE_COSMOS_MONGO_URI MONGO_DB_NAME JWT_SECRET PORT VITE_API_BASE_URL AZURE_WEBAPP_PUBLISH_PROFILE; do
             if [ -z "${!name}" ]; then
               echo "::error title=Secret missing::Environment variable $name is empty"
               MISSING=1
