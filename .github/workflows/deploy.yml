@@ -5,9 +5,6 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 env:
   NODE_VERSION: '24.x'              # Use Node 24 LTS
   AZURE_WEBAPP_NAME: 'appsrv-app-dev'   # <-- change this
@@ -17,6 +14,7 @@ env:
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
   PORT: ${{ secrets.PORT }}
   VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+  PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
 
 
 jobs:
@@ -46,13 +44,28 @@ jobs:
           else
             echo "No build script. Skipping."
           fi
+
+      - name: Sanity check secrets presence
+        shell: bash
+        run: |
+          for name in AZURE_COSMOS_MONGO_URI MONGO_DB_NAME JWT_SECRET PORT VITE_API_BASE_URL PUBLISH_PROFILE; do
+            if [ -z "${!name}" ]; then
+              echo "::error title=Secret missing::Environment variable $name is empty"
+              MISSING=1
+            else
+              echo "$name is set"
+            fi
+          done
+          exit ${MISSING:-0}
         
       - name: Check environment variables
         run: |
-          echo "AZURE_COSMOS_MONGO_URI=${{ env.AZURE_COSMOS_MONGO_URI }}"
-          echo "MONGO_DB_NAME=${{ env.MONGO_DB_NAME }}"
-          echo "JWT_SECRET=${{ env.JWT_SECRET }}"
-          echo "PUBLISH PROFILE=${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}"
+          echo "AZURE_COSMOS_MONGO_URI=${{ secrets.AZURE_COSMOS_MONGO_URI }}" >> $GITHUB_ENV
+          echo "MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}" >> $GITHUB_ENV
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+          echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
+          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> $GITHUB_ENV
+          echo "PUBLISH PROFILE=${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" >> $GITHUB_ENV
 
       - name: Archive app for deployment
         run: |
