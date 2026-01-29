@@ -16,7 +16,7 @@ jobs:
     environment: dev            # <-- CRUCIAL: binds the job to environment 'dev'
     env: 
       AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-      AZURE_COSMOS_MONGO_URI: ${{ secrets.AZURE_COSMOS_MONGO_URI }}
+      AZURE_COSMOS_MONGO_URI: ${{ vars.AZURE_COSMOS_MONGO_URI }}
       MONGO_DB_NAME: ${{ vars.MONGO_DB_NAME }}
       JWT_SECRET: ${{ vars.JWT_SECRET }}
       PORT: ${{ vars.PORT }}
@@ -51,11 +51,12 @@ jobs:
         run: |
           # Vars (non-sensitive) - okay to echo
           echo "MONGO_DB_NAME=${MONGO_DB_NAME}"
+          echo "AZURE_COSMOS_MONGO_URI=${AZURE_COSMOS_MONGO_URI}"
           echo "JWT_SECRET=${JWT_SECRET}"
           echo "PORT=${PORT}"
           echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}"
           # Secrets (sensitive) - only assert presence
-          for name in AZURE_WEBAPP_PUBLISH_PROFILE AZURE_COSMOS_MONGO_URI; do
+          for name in AZURE_WEBAPP_PUBLISH_PROFILE; do
             [ -n "${!name}" ] && echo "$name is set" || (echo "::error::$name is empty" && exit 1)
           done
 
