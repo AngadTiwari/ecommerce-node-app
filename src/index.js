@@ -1,4 +1,4 @@
-import './monitor'
+import monitor from './monitor/index.js'; // Initialize monitoring
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
